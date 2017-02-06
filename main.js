@@ -20,10 +20,12 @@
     __log('Recorder initialised.');
   }
 
+  var countdownTimer;
   function startRecording(button) {
     recorder && recorder.record();
     button.disabled = true;
     button.nextElementSibling.disabled = false;
+    countdownTimer = setInterval('secondPassed()', 1000);
     __log('Recording...');
   }
 
@@ -31,6 +33,8 @@
     recorder && recorder.stop();
     button.disabled = true;
     button.previousElementSibling.disabled = false;
+    clearInterval(countdownTimer);
+    document.getElementById('countdown').innerHTML = "Stopped!"
     __log('Stopped recording.');
 
     // create WAV download link using audio data blob
@@ -38,6 +42,25 @@
 
     recorder.clear();
   }
+
+  var seconds = 10;
+  function secondPassed() {
+    var minutes = Math.round((seconds - 30)/60);
+    var remainingSeconds = seconds % 60;
+    if (remainingSeconds < 10) {
+        remainingSeconds = "0" + remainingSeconds;  
+    }
+    document.getElementById('countdown').innerHTML = minutes + ":" + remainingSeconds;
+    if (seconds == 0) {
+        clearInterval(countdownTimer);
+        document.getElementById('countdown').innerHTML = "Expired!";
+        stopRecording(document.getElementById('btnStop'));
+    } else {
+        seconds--;
+    }
+}
+ 
+
 
   function createDownloadLink() {
     recorder && recorder.exportWAV(function(blob) {
